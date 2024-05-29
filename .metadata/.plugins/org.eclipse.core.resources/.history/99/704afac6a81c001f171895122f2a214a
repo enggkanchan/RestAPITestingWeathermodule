@@ -1,0 +1,54 @@
+package api.Usecases;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.testng.annotations.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.testng.Assert.assertTrue;
+
+public class validatetestcas {
+	 private static final String API_KEY = "134fd3fb676ff0943e9b03ea5a8c6dd5";
+	    private static final String BASE_URL = "https://api.openweathermap.org/data/2.5/";
+	    private static final String[] CITIES = {"Melbourne", "Manchester"};
+
+	    @Test
+	    public void testAirQuality() {
+	        RestAssured.baseURI = BASE_URL;
+
+	        for (String city : CITIES) {
+	            // Fetch weather data to get coordinates
+	            Response weatherResponse = given()
+	                    .queryParam("q", city)
+	                    .queryParam("appid", API_KEY)
+	                    .when()
+	                    .get("weather")
+	                    .then()
+	                    .statusCode(200)
+	                    .extract()
+	                    .response();
+
+	            float lat = weatherResponse.path("coord.lat");
+	            float lon = weatherResponse.path("coord.lon");
+
+	            // Fetch air pollution data using coordinates
+	            Response airPollutionResponse = given()
+	                    .queryParam("lat", lat)
+	                    .queryParam("lon", lon)
+	                    .queryParam("appid", API_KEY)
+	                    .when()
+	                    .get("http://api.openweathermap.org/data/2.5/air_pollution/forecast")
+	                    .then()
+	                    .statusCode(200)
+	                    .extract()
+	                    .response();
+
+	            // Verify if any AQI is 2 or above
+	            boolean isAqiTwoOrAbove = airPollutionResponse.jsonPath().getList("list.main.aqi")
+	                    .stream()
+	                    .anyMatch(aqi -> ((Integer) aqi) >= 2);
+
+	            assertTrue(!isAqiTwoOrAbove, "AQI is 2 or above for city: " + city);
+	        }
+	    }
+}

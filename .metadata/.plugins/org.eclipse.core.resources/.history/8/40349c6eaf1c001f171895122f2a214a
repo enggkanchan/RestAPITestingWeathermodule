@@ -1,0 +1,29 @@
+package api.Usecases;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertTrue;
+
+public class validatetestcas {
+	 
+	    @Test
+	    public void TestReult() {
+	    //    RestAssured.baseURI = Url.BASE_URL;
+
+	        for (String city : Url.CITIES) {
+	            // Fetch weather data to get coordinates
+	            Response weatherResponse = RestAssured.given()
+	                    .queryParam("q", city)
+	                    .queryParam("appid", Url.API_KEY)
+	                    .when()
+	                    .get(Url.BASE_URL + "/weather")
+	                    .then()
+	                    .statusCode(200)
+	                    .extract()
+	                    .response();
+
+				}
+	    }
+}

@@ -1,0 +1,52 @@
+package api.Usecases;
+
+import io.restassured.RestAssured;
+import io.restassured.response.Response;
+import org.testng.annotations.Test;
+
+import static io.restassured.RestAssured.given;
+import static org.testng.Assert.assertTrue;
+
+public class validatetestcas {
+
+    private static final String API_KEY = "134fd3fb676ff0943e9b03ea5a8c6dd5";
+    private static final String WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather";
+    private static final String AIR_POLLUTION_URL = "http://api.openweathermap.org/data/2.5/air_pollution/forecast";
+
+    @Test
+    public void testAirQualityIndex() {
+        String[] cities = {"Melbourne", "Manchester"};
+        
+        for (String city : cities) {
+            // Get weather data to find coordinates
+            Response weatherResponse = given()
+                .queryParam("q", city)
+                .queryParam("appid", API_KEY)
+                .when()
+                .get(WEATHER_URL)
+                .then()
+                .statusCode(200)
+                .extract()
+                .response();
+            
+			/*
+			 * float lat = weatherResponse.jsonPath().getFloat("coord.lat"); float lon =
+			 * weatherResponse.jsonPath().getFloat("coord.lon");
+			 * 
+			 * // Use coordinates to get air pollution data Response airPollutionResponse =
+			 * given() .queryParam("lat", lat) .queryParam("lon", lon) .queryParam("appid",
+			 * API_KEY) .when() .get(AIR_POLLUTION_URL) .then() .statusCode(200) .extract()
+			 * .response();
+			 * 
+			 * // Check if any air quality index (aqi) is 2 or above int[] aqiValues =
+			 * airPollutionResponse.jsonPath().get("list.main.aqi");
+			 * 
+			 * boolean isAqiHigh = false; for (int aqi : aqiValues) { if (aqi >= 2) {
+			 * isAqiHigh = true; break; } }
+			 * 
+			 * assertTrue(isAqiHigh, "Air quality index for " + city + " is 2 or above: " +
+			 * isAqiHigh);
+			 */
+        }
+    }
+}

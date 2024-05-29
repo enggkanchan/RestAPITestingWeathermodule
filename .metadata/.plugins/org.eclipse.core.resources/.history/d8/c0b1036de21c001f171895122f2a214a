@@ -1,0 +1,61 @@
+package api.Usecases;
+
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import org.testng.annotations.Test;
+
+import static org.testng.Assert.assertTrue;
+
+import org.testng.Assert;
+
+public class validatetestcas {
+	 
+	    @Test
+	    public void TestReult() {
+	    //    RestAssured.baseURI = Url.BASE_URL;
+
+	        for (String city : Url.CITIES) {
+	            // Fetch weather data to get coordinates
+	            Response weatherResponse = RestAssured.given()
+	            		.contentType(ContentType.JSON)
+	            		.queryParam("q", city)
+	                    .queryParam("appid", Url.API_KEY)
+	                    .when()
+	                    .get(Url.BASE_URL + "/weather")
+	                    .then()
+	                    .statusCode(200)
+	                    .extract()
+	                    .response();
+	            
+	            float lat = weatherResponse.path("coord.lat");
+	            float lon = weatherResponse.path("coord.lon");
+
+	            Response air_pollution = RestAssured.given()
+	            		 .contentType(ContentType.JSON)
+	            		 .queryParam("lat", lat)
+	                     .queryParam("lon", lon)
+	                     .queryParam("appid", Url.API_KEY)
+		                 .when()
+		                 .get(Url.BASE_URL + "/air_pollution/forecast")
+		                 .then()
+		                 .statusCode(200)
+		                  .extract()
+		                 .response();
+	            
+	            // Verify if any AQI is 2 or above
+	            boolean isAqiHigh = air_pollution.jsonPath().getList("list.main.aqi")
+	                    .stream()
+	                    .anyMatch(aqi -> Integer.parseInt(aqi.toString()) >= 2);
+
+	           //assertTrue(isAqiHigh, "AQI is 2 or above for city: " + city);
+	           System.out.println("City: " + city + " - AQI is 2 or above: " + isAqiHigh);
+	          
+//verify : report 
+	           //actual 
+	           //extent 
+	           // data factory : read array: if no code then data factory: running the test multiple time 
+				}
+	        
+	    }
+}
